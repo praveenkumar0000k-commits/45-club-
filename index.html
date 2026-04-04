@@ -1,0 +1,243 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>45 Club</title>
+
+<style>
+body{margin:0;font-family:Arial;background:#0f172a;color:white;}
+
+.header{
+text-align:center;
+padding:12px;
+font-size:24px;
+font-weight:bold;
+background:linear-gradient(90deg,#00e0ff,#00ff99);
+-webkit-background-clip:text;
+-webkit-text-fill-color:transparent;
+animation:glow 2s infinite alternate;
+}
+@keyframes glow{
+from{text-shadow:0 0 5px #00e0ff;}
+to{text-shadow:0 0 20px #00ff99;}
+}
+
+.nav{position:fixed;bottom:0;width:100%;display:flex;background:#111;}
+.nav div{flex:1;text-align:center;padding:10px;}
+.active{color:#00e0ff;}
+
+.card{
+background:#1e293b;
+margin:10px;
+padding:15px;
+border-radius:10px;
+box-shadow:0 0 10px #000;
+transition:0.3s;
+}
+.card:hover{transform:scale(1.05);}
+
+button{
+padding:10px;
+margin:5px;
+border:none;
+border-radius:8px;
+background:#00e0ff;
+color:black;
+font-weight:bold;
+}
+
+/* GAME GRID */
+.grid{display:grid;grid-template-columns:1fr 1fr;gap:10px;padding:10px;}
+.game{
+background:#1e293b;
+padding:12px;
+border-radius:10px;
+text-align:center;
+animation:pulse 2s infinite;
+}
+@keyframes pulse{
+0%{box-shadow:0 0 5px #00e0ff;}
+50%{box-shadow:0 0 20px #00ff99;}
+100%{box-shadow:0 0 5px #00e0ff;}
+}
+.tag{font-size:12px;color:yellow;margin-top:5px;}
+
+/* HISTORY STYLE */
+.stats{display:flex;gap:10px;padding:10px;}
+.stat{
+flex:1;
+background:#1e293b;
+padding:10px;
+border-radius:10px;
+text-align:center;
+animation:glowBox 2s infinite alternate;
+}
+@keyframes glowBox{
+from{box-shadow:0 0 5px #00e0ff;}
+to{box-shadow:0 0 15px #00ff99;}
+}
+
+.row{
+display:flex;
+justify-content:space-between;
+padding:10px;
+border-bottom:1px solid #333;
+animation:fade 1.5s infinite alternate;
+}
+@keyframes fade{
+from{opacity:0.5;}
+to{opacity:1;}
+}
+
+</style>
+</head>
+
+<body>
+
+<div class="header">🚀 45 CLUB 🚀</div>
+<h2 style="text-align:center;">💰 Balance: ₹<span id="balance"></span></h2>
+
+<div id="app"></div>
+
+<div class="nav">
+<div id="nav-home" onclick="loadPage('home')">Home</div>
+<div id="nav-history" onclick="loadPage('history')">History</div>
+<div id="nav-promo" onclick="loadPage('promo')">Promotion</div>
+<div id="nav-account" onclick="loadPage('account')">Account</div>
+</div>
+
+<script>
+let balance = localStorage.getItem("bal") || 1000;
+let currentPeriod = 1000;
+
+/* COMMON */
+function updateBalance(){
+document.getElementById("balance").innerText = balance;
+}
+function setActive(tab){
+document.querySelectorAll(".nav div").forEach(el=>el.classList.remove("active"));
+document.getElementById("nav-"+tab).classList.add("active");
+}
+
+/* LOAD PAGE */
+function loadPage(page){
+let app=document.getElementById("app");
+let html="";
+
+/* HOME */
+if(page=="home"){
+html=`
+<div class="card" style="text-align:center;">
+<h2>🔥 Welcome to 45 Club 🔥</h2>
+</div>
+
+<div class="card">
+🎮 <b onclick="loadPage('wingo')" style="color:#00e0ff;">Play WinGo ▶</b>
+</div>
+
+<h3 style="margin-left:10px;">🔥 Games</h3>
+<div class="grid">
+<div class="game">Aviator ✈️<div class="tag">COMING SOON • COMMISSION</div></div>
+<div class="game">Mines 💣<div class="tag">COMING SOON • COMMISSION</div></div>
+<div class="game">Tower 🏗️<div class="tag">COMING SOON • COMMISSION</div></div>
+<div class="game">Chicken 🐔<div class="tag">COMING SOON • COMMISSION</div></div>
+<div class="game">Road 🛣️<div class="tag">COMING SOON • COMMISSION</div></div>
+<div class="game">Casino 🎰<div class="tag">COMING SOON • COMMISSION</div></div>
+<div class="game">Running 🏃<div class="tag">COMING SOON • COMMISSION</div></div>
+<div class="game">Stock 📈<div class="tag">COMING SOON • COMMISSION</div></div>
+</div>`;
+}
+
+/* ✅ WINGO FIXED */
+if(page=="wingo"){
+html=`
+<div class="card" style="text-align:center;">
+<h2>🎮 WinGo Game</h2>
+
+<div>Period: <span id="period">${currentPeriod}</span></div>
+<div style="font-size:30px;color:yellow;">⏱ <span id="timer">30</span></div>
+
+<button onclick="bet('RED')" style="background:red;color:white;">RED</button>
+<button onclick="bet('GREEN')" style="background:green;color:white;">GREEN</button>
+<button onclick="bet('VIOLET')" style="background:purple;color:white;">VIOLET</button>
+</div>`;
+startGame();
+}
+
+/* HISTORY ADVANCED */
+if(page=="history"){
+let deposits=JSON.parse(localStorage.getItem("deposits"))||[];
+let withdraws=JSON.parse(localStorage.getItem("withdraws"))||[];
+
+let totalDep=deposits.reduce((a,b)=>a+100,0);
+let totalWith=withdraws.reduce((a,b)=>a+100,0);
+
+html=`
+<div class="stats">
+<div class="stat">Balance<br>₹${balance}</div>
+<div class="stat">Deposit<br>₹${totalDep}</div>
+<div class="stat">Withdraw<br>₹${totalWith}</div>
+</div>
+
+<div class="card"><h3>📥 Deposit</h3>
+${deposits.map(d=>`<div class="row"><span>${d.utr}</span><span>₹${d.amount}</span></div>`).join("")||"No Data"}
+</div>
+
+<div class="card"><h3>📤 Withdraw</h3>
+${withdraws.map(w=>`<div class="row"><span>${w.upi}</span><span>₹${w.amount}</span></div>`).join("")||"No Data"}
+</div>
+`;
+}
+
+/* PROMO */
+if(page=="promo"){
+html=`<div class="card"><h2>🎁 Promotion</h2><p>Earn ₹20 per refer</p></div>`;
+}
+
+/* ACCOUNT */
+if(page=="account"){
+html=`
+<div class="card">Balance ₹${balance}</div>
+<div class="card">
+<button onclick="depositRequest()">Deposit</button>
+<button onclick="withdrawRequest()">Withdraw</button>
+</div>
+<div class="card">
+<button onclick="openGift()">Gift</button>
+<button onclick="logout()">Logout</button>
+</div>`;
+}
+
+app.innerHTML=html;
+setActive(page);
+}
+
+/* GAME TIMER */
+function startGame(){
+let timer=30;
+setInterval(()=>{
+let t=document.getElementById("timer");
+if(!t)return;
+timer--;
+if(timer<=0){timer=30;currentPeriod++;}
+t.innerText=timer;
+document.getElementById("period").innerText=currentPeriod;
+},1000);
+}
+
+function bet(c){
+alert("Bet on "+c);
+}
+
+/* BASIC FUNCTIONS */
+function depositRequest(){alert("Deposit Page");}
+function withdrawRequest(){alert("Withdraw Page");}
+function openGift(){balance=parseInt(balance)+100;localStorage.setItem("bal",balance);updateBalance();}
+function logout(){localStorage.clear();location.reload();}
+
+updateBalance();
+loadPage("home");
+</script>
+
+</body>
+</html>
